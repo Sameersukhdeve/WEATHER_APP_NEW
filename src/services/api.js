@@ -1,15 +1,13 @@
 import axios from 'axios';
 
-// ✅ FINAL BACKEND URL (WITH /api PREFIX)
+// ✅ FINAL BACKEND URL
 const API = axios.create({
   baseURL: "https://weather-app-new-g4xu.onrender.com/api",
-  timeout: 15000,
+  timeout: 20000,
   headers: { 'Content-Type': 'application/json' }
 });
 
-// ============================================================
-// WEATHER CRUD OPERATIONS
-// ============================================================
+// ================= WEATHER =================
 
 export const createWeatherRecord = async (location, dateStart, dateEnd) => {
   const { data } = await API.post('/weather', {
@@ -42,20 +40,16 @@ export const deleteWeatherRecord = async (id) => {
   return data;
 };
 
-// ============================================================
-// EXPORT (✅ FIXED)
-// ============================================================
+// ================= EXPORT (FIXED) =================
 
-export const exportWeatherData = async (format) => {
+export const exportWeatherData = (format) => {
   window.open(
     `https://weather-app-new-g4xu.onrender.com/api/weather/export/${format}`,
     '_blank'
   );
 };
 
-// ============================================================
-// EXTRA APIs
-// ============================================================
+// ================= EXTRA =================
 
 export const getAirQuality = async (lat, lon) => {
   const { data } = await API.get(`/weather/airquality/${lat}/${lon}`);
@@ -63,25 +57,14 @@ export const getAirQuality = async (lat, lon) => {
 };
 
 export const getYouTubeVideos = async (location) => {
-  const { data } = await API.get(
-    `/weather/youtube/${encodeURIComponent(location)}`
-  );
+  const { data } = await API.get(`/weather/youtube/${encodeURIComponent(location)}`);
   return data;
 };
 
-// ============================================================
-// ERROR HELPER
-// ============================================================
+// ================= ERROR =================
 
 export const getErrorMessage = (error) => {
-  if (error.response?.data?.message) {
-    return error.response.data.message;
-  }
-  if (error.response?.data?.errors?.length) {
-    return error.response.data.errors.join(' ');
-  }
-  if (error.message === 'Network Error') {
-    return 'Cannot connect to the server. Make sure the backend is running.';
-  }
-  return error.message || 'Something went wrong. Please try again.';
+  if (error.response?.data?.message) return error.response.data.message;
+  if (error.message === 'Network Error') return 'Server not reachable';
+  return error.message || 'Something went wrong';
 };

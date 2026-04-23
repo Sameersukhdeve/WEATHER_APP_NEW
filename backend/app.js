@@ -7,20 +7,25 @@ const weatherRoutes = require('./routes/weather');
 
 const app = express();
 
-// ✅ FIXED CORS (ALLOW ALL — IMPORTANT)
+// ================= CORS FIX =================
+// ✅ allows frontend (any domain) to access backend
 app.use(cors({
   origin: "*",
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
+// ✅ handle preflight requests (IMPORTANT for browser)
+app.options("*", cors());
+
+// ================= MIDDLEWARE =================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ ROUTES
+// ================= ROUTES =================
 app.use('/api/weather', weatherRoutes);
 
-// ✅ ROOT
+// ================= ROOT =================
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -32,7 +37,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// ✅ HEALTH CHECK
+// ================= HEALTH CHECK =================
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -41,7 +46,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ❌ 404 HANDLER
+// ================= 404 HANDLER =================
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -49,7 +54,7 @@ app.use((req, res) => {
   });
 });
 
-// ❌ ERROR HANDLER
+// ================= ERROR HANDLER =================
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({
@@ -58,7 +63,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ✅ INIT DB
+// ================= INIT DB =================
 initializeDatabase().catch(error => {
   console.error('Unable to initialize database:', error.message);
 });
