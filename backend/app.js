@@ -1,12 +1,5 @@
-// ============================================================
-// backend/app.js
-// ============================================================
-// This file creates the Express application and configures routes.
-// It can be used both by the standalone backend server and by Vercel
-// serverless functions.
-// ============================================================
-
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const { initializeDatabase } = require('./config/db');
@@ -14,8 +7,9 @@ const weatherRoutes = require('./routes/weather');
 
 const app = express();
 
+// ✅ FIXED CORS (ALLOW ALL — IMPORTANT)
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: "*",
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -23,8 +17,10 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ✅ ROUTES
 app.use('/api/weather', weatherRoutes);
 
+// ✅ ROOT
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -36,6 +32,7 @@ app.get('/', (req, res) => {
   });
 });
 
+// ✅ HEALTH CHECK
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
@@ -44,6 +41,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// ❌ 404 HANDLER
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -51,6 +49,7 @@ app.use((req, res) => {
   });
 });
 
+// ❌ ERROR HANDLER
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({
@@ -59,9 +58,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Initialize the database once when the module is loaded.
-// This is safe in serverless contexts because the result is cached
-// for the function instance.
+// ✅ INIT DB
 initializeDatabase().catch(error => {
   console.error('Unable to initialize database:', error.message);
 });
