@@ -1,21 +1,29 @@
-require('dotenv').config();
-
+const path = require('path');
+const dotenv = require('dotenv');
 const express = require('express');
 const cors = require('cors');
 const { initializeDatabase } = require('./config/db');
+
+const envFiles = [
+  path.resolve(__dirname, '../.env.local'),
+  path.resolve(__dirname, '../.env')
+];
+
+envFiles.forEach((envFile) => {
+  dotenv.config({ path: envFile });
+});
+
 const weatherRoutes = require('./routes/weather');
 
 const app = express();
 
-// ================= CORS FIX =================
-// ✅ allows frontend (any domain) to access backend
+// ================= CORS =================
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// ✅ handle preflight requests (IMPORTANT for browser)
 app.options("*", cors());
 
 // ================= MIDDLEWARE =================
@@ -24,18 +32,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // ================= ROUTES =================
 app.use('/api/weather', weatherRoutes);
-
-// ================= ROOT =================
-app.get('/', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Welcome to Weather App API',
-    endpoints: {
-      health: '/api/health',
-      weather: '/api/weather'
-    }
-  });
-});
 
 // ================= HEALTH CHECK =================
 app.get('/api/health', (req, res) => {
@@ -46,11 +42,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ================= 404 HANDLER =================
-app.use((req, res) => {
+// ================= ✅ FIXED 404 HANDLER =================
+// Only for API routes
+app.use('/api', (req, res) => {
   res.status(404).json({
     success: false,
-    message: `Route not found: ${req.method} ${req.url}`
+    message: `API Route not found: ${req.method} ${req.originalUrl}`
   });
 });
 

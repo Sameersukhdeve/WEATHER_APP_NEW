@@ -1,8 +1,10 @@
 import axios from 'axios';
 
-// ✅ FINAL BACKEND URL
+// ✅ Use local backend when available, otherwise fall back to env config
+const baseURL = process.env.REACT_APP_API_URL || '/api';
+
 const API = axios.create({
-  baseURL: "https://weather-app-new-g4xu.onrender.com/api",
+  baseURL,
   timeout: 20000,
   headers: { 'Content-Type': 'application/json' }
 });
