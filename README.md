@@ -141,6 +141,7 @@ weather-app/
 │   └── package.json
 └── README.md
 
+
 ---
 
 ## 👤 About the Developer
